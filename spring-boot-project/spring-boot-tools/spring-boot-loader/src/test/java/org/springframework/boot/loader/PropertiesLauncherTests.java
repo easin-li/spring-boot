@@ -44,6 +44,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link PropertiesLauncher}.
@@ -250,6 +251,24 @@ public class PropertiesLauncherTests {
 				.isEqualTo("[jars/app.jar]");
 		launcher.launch(new String[0]);
 		waitFor("Hello World");
+	}
+
+	@Test
+	public void testUserSpecifiedNonExistentPath() throws Exception {
+		System.setProperty("loader.main", "demo.Application");
+		String[] paths = {
+				"nonexistent",
+				"nonexistent.jar",
+				"nested-jars/app.jar!/nonexistent",
+				"nested-jars/app.jar!/nonexistent.jar",
+		};
+		for (String path : paths) {
+			System.setProperty("loader.path", path);
+			assertThatIllegalArgumentException().isThrownBy(() -> {
+				PropertiesLauncher launcher = new PropertiesLauncher();
+				launcher.getClassPathArchives();
+			});
+		}
 	}
 
 	@Test

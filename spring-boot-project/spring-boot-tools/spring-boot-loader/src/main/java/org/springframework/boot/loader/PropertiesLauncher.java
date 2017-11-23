@@ -474,6 +474,10 @@ public class PropertiesLauncher extends Launcher {
 			debug("Adding classpath entries from nested " + root);
 			lib.addAll(nestedArchives);
 		}
+		// Ensure path has available classpath.
+		if (lib.isEmpty()) {
+			throw new IllegalArgumentException("No available classpath found for path: " + path);
+		}
 		return lib;
 	}
 
